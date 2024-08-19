@@ -83,11 +83,11 @@ jobs:
           sudo docker rm web-app || true
           sudo docker run --restart unless-stopped -e DATABASE_URL="${{ secrets.DB_URL }}" -d --name web-app -p 3005:3000 kpiyush434/wallet1:latest
 
-    - name: Run Database Migrations
-      uses: appleboy/ssh-action@master
-      with:
-        host: ${{ secrets.SSH_HOST }}
-        username: ${{ secrets.SSH_USERNAME }}
-        key: ${{ secrets.SSH_KEY }}
-        script: |
-          sudo docker exec web-app npx prisma migrate deploy
+    # - name: Run Database Migrations
+    #   uses: appleboy/ssh-action@master
+    #   with:
+    #     host: ${{ secrets.SSH_HOST }}
+    #     username: ${{ secrets.SSH_USERNAME }}
+    #     key: ${{ secrets.SSH_KEY }}
+    #     script: |
+    #       sudo docker exec web-app npx prisma migrate deploy
