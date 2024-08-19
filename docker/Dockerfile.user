@@ -15,4 +15,6 @@ RUN npm run db:generate
 # Can you filter the build down to just one app?
 RUN npm run build
 
+ENV DATABASE_URL=postgresql://neondb_owner:JsZY0fiznUS9@ep-tiny-wind-a5ocnoc6.us-east-2.aws.neon.tech/neondb?sslmode=require
+
 CMD ["npm", "run", "start-user-app"]
