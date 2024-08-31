@@ -2,14 +2,27 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "../../lib/auth";
 import prisma from "@repo/db/client";
 
+async function getBalance() {
+    const session = await getServerSession(authOptions);
+    const balance = await prisma.balance.findFirst({
+        where: {
+            userId: Number(session?.user?.id)
+        }
+    });
+    return {
+        amount: balance?.amount || 0
+    }
+}
+
 export default async function HomePage() {
     const session = await getServerSession(authOptions);
     const user = session?.user?.name || "User";
-    const balance = await prisma.balance.findFirst({
-        where: {
-            userId: Number(session?.user?.id),
-        },
-    });
+    // const balance = await prisma.balance.findFirst({
+    //     where: {
+    //         userId: Number(session?.user?.id),
+    //     },
+    // });
+    const balance = await getBalance();
     const amount = balance?.amount / 100 || 0;
 
     return (
