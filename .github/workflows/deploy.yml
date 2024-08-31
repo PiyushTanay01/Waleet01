@@ -12,6 +12,9 @@ jobs:
     - name: Check Out Repo
       uses: actions/checkout@v2
 
+    - name: Create .env file
+      run: echo "JWT_SECRET=${{secrets.JWT_SECRET}}" >> .env && echo "NEXTAUTH_URL=${{secrets.NEXTAUTH_URL}}" >> .env
+
     - name: Log in to Docker Hub
       uses: docker/login-action@v1
       with:
@@ -29,14 +32,25 @@ jobs:
     - name: Verify Pushed Image
       run: docker pull kpiyush434/wallet1:latest  # Replace with your Docker Hub username and repository
 
-    - name: Deploy to EC2
-      uses: appleboy/ssh-action@master
-      with:
-        host: ${{ secrets.SSH_HOST }}
-        username: ${{ secrets.SSH_USERNAME }}
-        key: ${{ secrets.SSH_KEY }}
-        script: |
-          sudo docker pull kpiyush434/wallet1:latest
-          sudo docker stop web-app || true
-          sudo docker rm web-app || true
-          sudo docker run --restart unless-stopped -e DATABASE_URL=postgresql://neondb_owner:JsZY0fiznUS9@ep-tiny-wind-a5ocnoc6.us-east-2.aws.neon.tech/neondb?sslmode=require -d --name web-app -p 3005:3000 kpiyush434/wallet1:latest
+    # - name: Deploy to EC2
+    #   uses: appleboy/ssh-action@master
+    #   with:
+    #     host: ${{ secrets.SSH_HOST }}
+    #     username: ${{ secrets.SSH_USERNAME }}
+    #     key: ${{ secrets.SSH_KEY }}
+    #     script: |
+    #       sudo docker pull kpiyush434/wallet1:latest
+    #       sudo docker stop web-app || true
+    #       sudo docker rm web-app || true
+    #       sudo docker run --restart unless-stopped -e DATABASE_URL=postgresql://neondb_owner:JsZY0fiznUS9@ep-tiny-wind-a5ocnoc6.us-east-2.aws.neon.tech/neondb?sslmode=require -d --name web-app -p 3005:3000 kpiyush434/wallet1:latest
+  deploy:
+    needs: build-and-push
+    runs-on: self-hosted
+    steps:
+      - name: Pull image from docker hub
+        run: docker pull kpiyush434/wallet1:latest
+      - name: Delete old cntainer
+        run:  docker rm -f nextjs-app-container
+      - name: Run docker container
+        run: docker run -d -p 3001:3000 --name nextjs-app-container kpiyush434/wallet1
+
